@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: Medifacil API
+  description: API para buscar medicamentos y ejecutar spiders de scraping
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+paths:
+  /search:
+    get:
+      summary: Busca medicamentos en la base de datos
+      description: Ruta de la API para buscar medicamentos en la base de datos
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Token de acceso
+          example: MySecretToken
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Nombre(s) medicamento(s) Separados por ','
+          example: aspirina,gel hidratante,Ibuprofeno
+      responses:
+        '200':
+          description: Información sobre los medicamentos encontrados
+          content:
+            application/json:
+              examples:
+                example-1:
+                  summary: Ejemplo de respuesta exitosa
+                  value: 
+                    - name: "pharmacy"
+                      location: "location"
+                      link_logo: "url"
+                      link: "url"
+                      products:
+                        - name: "medicine"
+                          price: 10.0
+                          found: true
+                          link: "url"
+        '400':
+          description: No se proporcionaron nombres de medicamentos o token no válido
+        '401':
+          description: Acceso no autorizado
+        '500':
+          description: Error interno del servidor
+
+  /scraper:
+    post:
+      summary: Ejecuta spiders de scraping
+      description: Ruta de la API para ejecutar spiders de scraping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                spiders:
+                  type: array
+                  items:
+                    type: string
+                    example: CrawlFybeca
+                  description: Lista de nombres de spiders a ejecutar
+                token:
+                  type: string
+                  example: MySecretToken
+                  description: Token de acceso
+              required:
+                - spiders
+                - token
+      responses:
+        '200':
+          description: Resultado de la ejecución del script incluyendo stdout, stderr y el código de retorno
+          content:
+            application/json:
+              examples:
+                example-1:
+                  summary: Ejemplo de respuesta exitosa
+                  value:
+                    stdout: "Output of the script"
+                    stderr: ""
+                    returncode: 0
+        '400':
+          description: No se proporcionaron nombres de spiders
+        '401':
+          description: Acceso no autorizado
+        '500':
+          description: Error interno del servidor
